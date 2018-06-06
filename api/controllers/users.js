@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
-const TransactionLog = require("../models/transaction_logs");
+const TransactionLogs = require("../models/transaction_logs");
 const Tokens = require("../models/tokens");
 
 exports.user_signup = (req, res, next) => {
@@ -12,7 +12,7 @@ exports.user_signup = (req, res, next) => {
         .exec()
         .then(user => {
             if (user.length >= 1) {
-                const TransactLog = new TransactionLog({
+                const TransactLog = new TransactionLogs({
                     _id: new mongoose.Types.ObjectId(),
                     url: req.protocol + '://' + req.get('host') + req.originalUrl,
                     method: req.method,
@@ -40,7 +40,7 @@ exports.user_signup = (req, res, next) => {
                             user
                                 .save()
                                 .then(result => {
-                                    const TransactLog = new TransactionLog({
+                                    const TransactLog = new TransactionLogs({
                                         _id: new mongoose.Types.ObjectId(),
                                         url: req.protocol + '://' + req.get('host') + req.originalUrl,
                                         method: req.method,
@@ -127,7 +127,7 @@ exports.user_delete = (req, res, next) => {
     User.remove({_id: req.params.userId})
         .exec()
         .then(result => {
-            const TransactLog = new TransactionLog({
+            const TransactLog = new TransactionLogs({
                 _id: new mongoose.Types.ObjectId(),
                 url: req.protocol + '://' + req.get('host') + req.originalUrl,
                 method: req.method,
