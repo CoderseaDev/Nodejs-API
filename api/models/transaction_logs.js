@@ -9,4 +9,4 @@ const transactionLogSchema = new mongoose.Schema({
     message: { type: String },
 },{timestamps: true});
 
-module.exports = mongoose.model('TransactionLog', transactionLogSchema);
+module.exports = mongoose.model('TransactionLogs', transactionLogSchema);

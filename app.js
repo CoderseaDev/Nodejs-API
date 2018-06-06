@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const ip = require("ip");
 
 const userRoutes = require('./api/routes/user');
-const TransactLog = require("./api/models/transaction_logs");
+const TransactionLogs = require("./api/models/transaction_logs");
 
 // connect to DB
 mongoose.connect(
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
     res.status(error.status || 500);
-    const TransactLog = new TransactionLog({
+    const TransactLog = new TransactionLogs({
         _id: new mongoose.Types.ObjectId(),
         url: req.protocol + '://' + req.get('host') + req.originalUrl,
         method: req.method,
