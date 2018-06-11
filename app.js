@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const ip = require("ip");
 
+require('dotenv').config();
 const userRoutes = require('./api/routes/user');
 const TransactionLogs = require("./api/models/transaction_logs");
 
@@ -50,7 +51,7 @@ app.use((error, req, res, next) => {
     res.status(error.status || 500);
     const TransactLog = new TransactionLogs({
         _id: new mongoose.Types.ObjectId(),
-        url: req.protocol + '://' + req.get('host') + req.originalUrl,
+        url: req.originalUrl,
         method: req.method,
         userIp: ip.address(),
         status: error.status || 500,
