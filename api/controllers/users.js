@@ -83,10 +83,9 @@ exports.user_signin = (req, res, next) => {
             bcrypt.compare(req.body.password, user[0].password, (err, result) => {
                 if (err) {
                     res.status(401).json({
-                        message: "Auth failed"
+                        message: "password failed"
                     });
-                }
-                if (result) {
+                }else {
                     const token = jwt.sign(
                         {
                             email: user[0].email,
@@ -104,15 +103,12 @@ exports.user_signin = (req, res, next) => {
                     });
                     Token.save();
                     res.status(200).json({
-                        message: "Auth successful",
+                        message: "Auth successfully",
                         token: token,
                         userId: user[0]._id
                     });
 
                 }
-                res.status(401).json({
-                    message: "Auth failed"
-                });
             });
         })
         .catch(err => {
