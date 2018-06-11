@@ -7,6 +7,6 @@ const logSchema = new mongoose.Schema({
     userIp: { type: String, required: true },
     status: { type: String },
     message: { type: String },
-},{timestamps: true});
+},{timestamps: true} , {collection: "logs"});
 
 module.exports = mongoose.model('Log', logSchema);

@@ -7,6 +7,7 @@ const transactionLogSchema = new mongoose.Schema({
     userIp: { type: String, required: true },
     status: { type: String },
     message: { type: String },
-},{timestamps: true});
+
+},{timestamps: true}  , {collection: "transactionlogs"});
 
 module.exports = mongoose.model('TransactionLogs', transactionLogSchema);
