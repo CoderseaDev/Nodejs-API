@@ -7,6 +7,7 @@ const ip = require("ip");
 
 require('dotenv').config();
 const userRoutes = require('./api/routes/user');
+const patientRoutes = require('./api/routes/patient');
 const TransactionLogs = require("./api/models/transaction_logs");
 
 // connect to DB
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 
 // Routes which should handle requests
 app.use("/user", userRoutes);
+app.use("/patient", patientRoutes);
 
 /* Start Handle errors */
 
