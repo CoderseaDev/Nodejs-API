@@ -4,9 +4,17 @@ const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name: {type: String,required: [true, 'Patient Name is required']},
     surname: {type: String,required: true},
-    email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
-    height:{type:Number,required: true},
-    weight:{type:Number,required: true},
+    email:{type:String},
+    height:{
+        type:Number,
+        required: true,
+        maxlength:3,
+    },
+    weight:{
+        type:Number,
+        required: true,
+        maxlength:3,
+    },
     gender:{
         type: String,
         enum: ['male', 'female'],
@@ -50,8 +58,12 @@ const userSchema = mongoose.Schema({
         type:Number,
         minlength:11,
         maxlength:13,
+    },
+    delete:{
+        type: String,
+        enum: ['false', 'true'],
+        default: 'false'
     }
-
 
 
 },{collection: "patients"} );
