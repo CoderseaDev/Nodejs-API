@@ -9,13 +9,11 @@ passport.use(new JwtStrategy({
     secretOrKey: process.env.JWT_KEY
 }, async (payload, done) => {
     try {
-        console.log("tttttt");
         // Find the user specified in token
         const user = await User.findById(payload.sub);
 
         // If user doesn't exists, handle it
         if (!user) {
-              console.log("yuyuy");
             return done({
                 message: "Auth failed"
             });
@@ -25,6 +23,6 @@ passport.use(new JwtStrategy({
         return  done(null, user);
     } catch (error) {
         console.log('catch');
-        done("gggggggggggggggggggggggg", false);
+        done(error, false);
     }
 }));
