@@ -2,10 +2,45 @@ const mongoose = require("mongoose");
 const ip = require("ip");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 const User = require("../models/user");
 const TransactionLogs = require("../models/transaction_logs");
 const Tokens = require("../models/tokens");
+const Logs = require("../models/logs");
+
+// All logs
+function all_log(req, res) {
+    const log = new Logs({
+        _id: new mongoose.Types.ObjectId(),
+        url: req.originalUrl,
+        method: req.method,
+        userIp: ip.address(),
+        status: res.statusCode,
+        message: err.message
+    });
+    log.save();
+}
+
+// All Transaction Logs
+function TransactionLog(req, res) {
+    const Transaction = new TransactionLogs({
+        _id: new mongoose.Types.ObjectId(),
+        url: req.originalUrl,
+        method: req.method,
+        userIp: ip.address(),
+        status: res.statusCode,
+    });
+    Transaction.save();
+}
+
+// Token
+function Tokens_log(req, res, user) {
+    const Token = new Tokens({
+        _id: new mongoose.Types.ObjectId(),
+        token: token,
+        user_id: user._id
+    });
+    Token.save();
+}
 
 signToken = user => {
     return jwt.sign({
@@ -53,21 +88,13 @@ exports.user_signup = (req, res, next) => {
                         user
                             .save()
                             .then(result => {
-                                const TransactLog = new TransactionLogs({
-                                    _id: new mongoose.Types.ObjectId(),
-                                    url: req.originalUrl,
-                                    method: req.method,
-                                    userIp: ip.address(),
-                                    status: res.statusCode,
-                                });
-                                TransactLog.save();
-                                console.log(result);
+                                TransactionLog(req, res);
                                 res.status(201).json({
                                     message: "User created"
                                 });
                             })
                             .catch(err => {
-                                console.log(err);
+                                all_log(req, res);
                                 res.status(500).json({
                                     error: err
                                 });
@@ -96,20 +123,8 @@ exports.user_signin = (req, res, next) => {
                 } else {
                     console.log(user[0]);
                     const token = signToken(user);
-                    const TransactLog = new TransactionLogs({
-                        _id: new mongoose.Types.ObjectId(),
-                        url: req.originalUrl,
-                        method: req.method,
-                        userIp: ip.address(),
-                        status: res.statusCode,
-                    });
-                    TransactLog.save();
-                    const Token = new Tokens({
-                        _id: new mongoose.Types.ObjectId(),
-                        token: token,
-                        user_id: user._id
-                    });
-                    Token.save();
+                    TransactionLog(req, res);
+                    Tokens_log(req, res, user);
                     res.status(200).json({
                         message: "Auth successfully",
                         token: token,
@@ -120,7 +135,7 @@ exports.user_signin = (req, res, next) => {
             });
         })
         .catch(err => {
-            console.log(err);
+            all_log(req, res);
             res.status(500).json({
                 error: err
             });
@@ -131,20 +146,13 @@ exports.user_delete = (req, res, next) => {
     User.remove({_id: req.params.userId})
         .exec()
         .then(result => {
-            const TransactLog = new TransactionLogs({
-                _id: new mongoose.Types.ObjectId(),
-                url: req.originalUrl,
-                method: req.method,
-                userIp: ip.address(),
-                status: res.statusCode,
-            });
-            TransactLog.save();
+            TransactionLog(req, res);
             res.status(200).json({
                 message: "User deleted"
             });
         })
         .catch(err => {
-            console.log(err);
+            all_log(req, res);
             res.status(500).json({
                 error: err
             });
