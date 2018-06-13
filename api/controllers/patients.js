@@ -17,9 +17,17 @@ exports.add_new_patient = (req, res, next) => {
                 message: "Authorization failed"
             });
         }
-
-        const patient = new Patient({
+        var last_id ;
+        Patient.findOne().sort({created_at: -1}).exec(function(err, post) {
+          if(post==null){
+            last_id = 0;
+          }else{
+            last_id= post['patientId'];
+          }
+       
+        const patient =  new Patient({
             _id: new mongoose.Types.ObjectId(),
+            patientId : last_id+1,
             name: req.body.name,
             email: req.body.email,
             surname: req.body.surname,
@@ -53,6 +61,7 @@ exports.add_new_patient = (req, res, next) => {
                     message: "Patient Added"
                 });
             })
+       
             .catch(err => {
                 console.log(err);
                 res.status(500).json({
@@ -60,7 +69,7 @@ exports.add_new_patient = (req, res, next) => {
                     error: err.message
                 });
             });
-
+        });
     })(req, res, next);
 
 };
