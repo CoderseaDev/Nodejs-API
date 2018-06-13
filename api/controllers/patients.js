@@ -1,9 +1,49 @@
 const mongoose = require("mongoose");
 const ip = require("ip");
-const Patient = require("../models/patient");
-const TransactionLogs = require("../models/transaction_logs");
 const passport = require('passport');
 const passportConf = require('../../passport');
+const Patient = require("../models/patient");
+const TransactionLogs = require("../models/transaction_logs");
+const Logs = require("../models/logs");
+
+// Authorization log
+function Authlog(req, res) {
+    const log_auth = new Logs({
+        _id: new mongoose.Types.ObjectId(),
+        url: req.originalUrl,
+        method: req.method,
+        userIp: ip.address(),
+        status: res.statusCode,
+        message: "Authorization failed"
+    });
+    log_auth.save();
+}
+
+// All logs
+function all_log(req, res) {
+    const log = new Logs({
+        _id: new mongoose.Types.ObjectId(),
+        url: req.originalUrl,
+        method: req.method,
+        userIp: ip.address(),
+        status: res.statusCode,
+        message: err.message
+    });
+    log.save();
+}
+
+// All Transaction Logs
+function TransactionLog(req, res) {
+    const Transaction = new TransactionLogs({
+        _id: new mongoose.Types.ObjectId(),
+        url: req.originalUrl,
+        method: req.method,
+        userIp: ip.address(),
+        status: res.statusCode,
+    });
+    Transaction.save();
+}
+
 
 // add patient
 exports.add_new_patient = (req, res, next) => {
@@ -12,63 +52,55 @@ exports.add_new_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
+            Authlog(req, res);
             return res.json({
                 status: "1",
                 message: "Authorization failed"
             });
         }
-        var last_id ;
-        Patient.findOne().sort({created_at: -1}).exec(function(err, post) {
-          if(post==null){
-            last_id = 0;
-          }else{
-            last_id= post['patientId'];
-          }
-       
-        const patient =  new Patient({
-            _id: new mongoose.Types.ObjectId(),
-            patientId : last_id+1,
-            name: req.body.name,
-            email: req.body.email,
-            surname: req.body.surname,
-            height: req.body.height,
-            weight: req.body.weight,
-            gender: req.body.gender,
-            blood_type: req.body.blood_type,
-            patient_complaint: req.body.patient_complaint,
-            date_of_birth: req.body.date_of_birth,
-            home_no: req.body.home_no,
-            mobile_no: req.body.mobile_no,
-            address: req.body.address,
-            name_em: req.body.name_em,
-            relation: req.body.relation,
-            phone_no_em: req.body.phone_no_em,
-        });
-        patient
-            .save()
-            .then(result => {
-                const TransactLog = new TransactionLogs({
-                    _id: new mongoose.Types.ObjectId(),
-                    url: req.originalUrl,
-                    userIp: ip.address(),
-                    method: req.method,
-                    status: res.statusCode,
-                });
-                TransactLog.save();
-                console.log(result);
-                res.status(201).json({
-                    status: "0",
-                    message: "Patient Added"
-                });
-            })
-       
-            .catch(err => {
-                console.log(err);
-                res.status(500).json({
-                    status: "2",
-                    error: err.message
-                });
+        var last_id;
+        Patient.findOne().sort({created_at: -1}).exec(function (err, post) {
+            if (post == null) {
+                last_id = 0;
+            } else {
+                last_id = post['patientId'];
+            }
+
+            const patient = new Patient({
+                _id: new mongoose.Types.ObjectId(),
+                patientId: last_id + 1,
+                name: req.body.name,
+                email: req.body.email,
+                surname: req.body.surname,
+                height: req.body.height,
+                weight: req.body.weight,
+                gender: req.body.gender,
+                blood_type: req.body.blood_type,
+                patient_complaint: req.body.patient_complaint,
+                date_of_birth: req.body.date_of_birth,
+                home_no: req.body.home_no,
+                mobile_no: req.body.mobile_no,
+                address: req.body.address,
+                name_em: req.body.name_em,
+                relation: req.body.relation,
+                phone_no_em: req.body.phone_no_em,
             });
+            patient
+                .save()
+                .then(result => {
+                    TransactionLog(req, res);
+                    res.status(201).json({
+                        status: "0",
+                        message: "Patient Added"
+                    });
+                })
+                .catch(err => {
+                    all_log(req, res);
+                    res.status(500).json({
+                        status: "2",
+                        error: err.message
+                    });
+                });
         });
     })(req, res, next);
 
@@ -83,6 +115,7 @@ exports.get_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
+            Authlog(req, res);
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -93,21 +126,22 @@ exports.get_patient = (req, res, next) => {
         Patient.findById(id)
             .exec()
             .then(doc => {
-                const TransactionLog = new TransactionLogs({
-                    _id: new mongoose.Types.ObjectId(),
-                    url: req.originalUrl,
-                    method: req.method,
-                    userIp: ip.address(),
-                    status: res.statusCode,
-                });
-                TransactionLog.save();
-                res.status(200).json({
-                    status: "0",
-                    patient: doc,
-                });
+                TransactionLog(req, res);
+                if (doc.delete == 'true') {
+                    res.status(404).json({
+                        status: "3",
+                        message: `No found the Patient with ID : ${doc._id} `
+                    });
+                } else {
+                    res.status(200).json({
+                        status: "0",
+                        patient: doc,
+                    });
+                }
+
             })
             .catch(err => {
-                console.log(err);
+                all_log(req, res);
                 res.status(500).json({status: "2", error: err.message});
             });
     })(req, res, next);
@@ -122,29 +156,24 @@ exports.get_all_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
+            Authlog(req, res);
             return res.json({
                 status: "1",
                 message: "Authorization failed"
             });
         }
 
-        Patient.find()
+        Patient.find({delete: {$ne: "true"}})
             .exec()
             .then(docs => {
-                const TransactionLog = new TransactionLogs({
-                    _id: new mongoose.Types.ObjectId(),
-                    url: req.originalUrl,
-                    method: req.method,
-                    userIp: ip.address(),
-                    status: res.statusCode,
-                });
-                TransactionLog.save();
+                TransactionLog(req, res);
                 const response = {
                     status: "0",
                     count: docs.length,
                     patients: docs.map(doc => {
                         return {
                             _id: doc._id,
+                            patientId: doc.patientId,
                             name: doc.name,
                             surname: doc.surname,
                             email: doc.email,
@@ -160,6 +189,7 @@ exports.get_all_patient = (req, res, next) => {
                             name_em: doc.name_em,
                             relation: doc.relation,
                             phone_no_em: doc.phone_no_em,
+                            delete: doc.delete
                         };
                     })
                 };
@@ -173,7 +203,7 @@ exports.get_all_patient = (req, res, next) => {
                 }
             })
             .catch(err => {
-                console.log(err);
+                all_log(req, res);
                 res.status(500).json({status: "2", error: err.message});
             });
     })(req, res, next);
@@ -188,6 +218,7 @@ exports.update_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
+            Authlog(req, res);
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -195,28 +226,17 @@ exports.update_patient = (req, res, next) => {
         }
 
         const id = req.params.patientId;
-        const updateOps = {};
-        for (const ops of req.body) {
-            updateOps[ops.propName] = ops.value;
-        }
-        Patient.updateMany({_id: id}, {$set: updateOps})
+        Patient.updateMany({_id: id}, {$set: req.body})
             .exec()
             .then(result => {
-                const TransactionLog = new TransactionLogs({
-                    _id: new mongoose.Types.ObjectId(),
-                    url: req.originalUrl,
-                    method: req.method,
-                    userIp: ip.address(),
-                    status: res.statusCode,
-                });
-                TransactionLog.save();
+                TransactionLog(req, res);
                 res.status(200).json({
                     status: "0",
                     message: 'Patient updated',
                 });
             })
             .catch(err => {
-                console.log(err);
+                all_log(req, res);
                 res.status(500).json({status: "2", error: err.message});
             });
     })(req, res, next);
@@ -230,6 +250,7 @@ exports.delete_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
+            Authlog(req, res);
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -241,21 +262,14 @@ exports.delete_patient = (req, res, next) => {
         Patient.updateMany({_id: id}, {$set: updateOps})
             .exec()
             .then(result => {
-                const TransactionLog = new TransactionLogs({
-                    _id: new mongoose.Types.ObjectId(),
-                    url: req.originalUrl,
-                    method: req.method,
-                    userIp: ip.address(),
-                    status: res.statusCode,
-                });
-                TransactionLog.save();
+                TransactionLog(req, res);
                 res.status(200).json({
 
                     message: 'Patient deleted',
                 });
             })
             .catch(err => {
-                console.log(err);
+                all_log(req, res);
                 res.status(500).json({status: "2", error: err.message});
             });
     })(req, res, next);

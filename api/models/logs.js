@@ -9,4 +9,4 @@ const logSchema = new mongoose.Schema({
     message: { type: String },
 },{timestamps: true} , {collection: "logs"});
 
-module.exports = mongoose.model('Log', logSchema);
+module.exports = mongoose.model('Logs', logSchema);
