@@ -32,15 +32,6 @@ function TransactionLog(req, res) {
     Transaction.save();
 }
 
-// Token
-function Tokens_log(req, res, user) {
-    const Token = new Tokens({
-        _id: new mongoose.Types.ObjectId(),
-        token: token,
-        user_id: user._id
-    });
-    Token.save();
-}
 
 signToken = user => {
     return jwt.sign({
@@ -124,7 +115,12 @@ exports.user_signin = (req, res, next) => {
                     console.log(user[0]);
                     const token = signToken(user);
                     TransactionLog(req, res);
-                    Tokens_log(req, res, user);
+                    const Token = new Tokens({
+                        _id: new mongoose.Types.ObjectId(),
+                        token: token,
+                        user_id: user._id
+                    });
+                    Token.save();
                     res.status(200).json({
                         message: "Auth successfully",
                         token: token,
