@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 require('mongoose-type-email');
 const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-   
     patientId: {type: Number,default:1},
     name: {type: String,required: [true, 'Patient Name is required']},
     surname: {type: String,required: true},
-    email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
+    // email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
+    email:{type:String},
     height:{
         type:Number,
         required: true,

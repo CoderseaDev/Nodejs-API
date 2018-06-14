@@ -4,9 +4,10 @@ const passport = require('passport');
 const passportConf = require('../../passport');
 const PatientController = require('../controllers/patients');
 const passportSignIn = passport.authenticate('jwt', { session: false });
+const { validateBody, schemas } = require('../helpers/routePatientHelpers');
 
 
-router.post("/addNewPatient", PatientController.add_new_patient);
+router.post("/addNewPatient", validateBody, PatientController.add_new_patient);
 
 router.get("/:patientId", PatientController.get_patient);
 

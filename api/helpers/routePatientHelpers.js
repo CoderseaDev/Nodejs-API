@@ -15,23 +15,23 @@ module.exports = {
     },
 
     schemas: {
-        authSchema: Joi.object().keys({
+        patientSchema: Joi.object().keys({
 
-            name: Joi.string().required(),
+            // name: Joi.string().required(),
             email: Joi.string().required().email(),
-            surname: Joi.string().required(),
-            height: Joi.string().required().number().max(3),
-            weight: Joi.string().required().number().max(3),
-            gender: Joi.string().required(),
-            blood_type: Joi.string().required().max(3),
-            patient_complaint: Joi.string().required(),
-            date_of_birth: Joi.date().required(),
-            home_no: Joi.number().max(10),
-            mobile_no: Joi.number().max(13).min(11),
-            address: Joi.string().required(),
-            name_em: Joi.string(),
-            relation: Joi.string(),
-            phone_no_em: Joi.number().max(13).min(11),
+            // surname: Joi.string().required(),
+            // height: Joi.number().max(3).required(),
+            // weight: Joi.number().max(3).required(),
+            // gender: Joi.string().required(),
+            // blood_type: Joi.string().required().max(3),
+            // patient_complaint: Joi.string().required(),
+            // date_of_birth: Joi.date().required(),
+            // home_no: Joi.number().max(10),
+            // mobile_no: Joi.number().max(13).min(11),
+            // address: Joi.string().required(),
+            // name_em: Joi.string(),
+            // relation: Joi.string(),
+            // phone_no_em: Joi.number().max(13).min(11),
 
         })
     }
