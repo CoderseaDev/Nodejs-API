@@ -67,17 +67,18 @@ exports.user_signin = (req, res, next) => {
     User.findOne({email: req.body.email})
         .exec()
         .then(user => {
-            console.log(user);
-            if (user.length < 1) {
-                helpers_log.all_log(req, res, "Auth failed");
-                res.status(401).json({
-                    message: "Auth failed"
+            if (!user) {
+                helpers_log.all_log(req, res, "Sorry, You Are not A User");
+                return  res.status(401).json({
+                    status:"3",
+                    message: "Sorry, you are not a user"
                 });
             }
             bcrypt.compare(req.body.password, user.password, (err, result) => {
-                if (err) {
+                if (!result) {
                     res.status(401).json({
-                        message: "password failed"
+                        status:"2",
+                        message: "You entered wrong password"
                     });
                 } else {
                     console.log(user[0]);
