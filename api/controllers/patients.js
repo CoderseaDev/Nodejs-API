@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const ip = require("ip");
 const passport = require('passport');
 const passportConf = require('../../passport');
 const Patient = require("../models/patient");
@@ -13,7 +12,7 @@ exports.add_new_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.logWithMessage(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -49,7 +48,7 @@ exports.add_new_patient = (req, res, next) => {
             patient
                 .save()
                 .then(result => {
-                    helpers_log.TransactionLog(req, res);
+                    helpers_log.TransactionLog(req, res, "Patient Added");
                     res.status(201).json({
                         status: "0",
                         message: "Patient Added"
@@ -76,7 +75,7 @@ exports.get_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.logWithMessage(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -87,13 +86,14 @@ exports.get_patient = (req, res, next) => {
         Patient.findById(id)
             .exec()
             .then(doc => {
-                helpers_log.TransactionLog(req, res);
                 if (doc.delete == 'true') {
+                    helpers_log.all_log(req, res, `No found the Patient with ID : ${doc._id} `);
                     res.status(404).json({
                         status: "3",
                         message: `No found the Patient with ID : ${doc._id} `
                     });
                 } else {
+                    helpers_log.TransactionLog(req, res);
                     res.status(200).json({
                         status: "0",
                         patient: doc,
@@ -117,7 +117,7 @@ exports.get_all_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.logWithMessage(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -180,7 +180,7 @@ exports.update_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.logWithMessage(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -188,10 +188,12 @@ exports.update_patient = (req, res, next) => {
         }
 
         const id = req.params.patientId;
-        Patient.updateMany({_id: id}, {$set: req.body})
+        let update = req.body;
+            update.updated_at = Date.now();
+        Patient.updateMany({_id: id}, {$set: update} )
             .exec()
             .then(result => {
-                helpers_log.TransactionLog(req, res);
+                helpers_log.TransactionLog(req, res, 'Patient updated');
                 res.status(200).json({
                     status: "0",
                     message: 'Patient updated',
@@ -212,7 +214,7 @@ exports.delete_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.logWithMessage(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -220,11 +222,11 @@ exports.delete_patient = (req, res, next) => {
         }
 
         const id = req.params.patientId;
-        updateOps = {delete: true};
+        updateOps = {delete: true ,deleted_at :Date.now()};
         Patient.updateMany({_id: id}, {$set: updateOps})
             .exec()
             .then(result => {
-                helpers_log.TransactionLog(req, res);
+                helpers_log.TransactionLog(req, res, 'Patient deleted');
                 res.status(200).json({
                     status: "0",
                     message: 'Patient deleted',

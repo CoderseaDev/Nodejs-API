@@ -5,8 +5,7 @@ const userSchema = mongoose.Schema({
     patientId: {type: Number,default:1},
     name: {type: String,required: [true, 'Patient Name is required']},
     surname: {type: String,required: true},
-    // email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
-    email:{type:String},
+    email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
     height:{
         type:Number,
         required: true,
@@ -24,7 +23,7 @@ const userSchema = mongoose.Schema({
     },
     blood_type:{
         type:String,
-        max:3,
+        maxlength:3,
         required: true
     },
     patient_complaint:{
@@ -66,8 +65,9 @@ const userSchema = mongoose.Schema({
         enum: ['false', 'true'],
         default: 'false'
     },
-    created_at    : { type: Date, required: true, default: Date.now },
-    updated_at    : { type: Date, required: true, default: Date.now },
+    created_at  : { type: Date, required: true, default: Date.now },
+    updated_at  : { type: Date },
+    deleted_at  : { type: Date },
 
 
 },{collection: "patients"} );

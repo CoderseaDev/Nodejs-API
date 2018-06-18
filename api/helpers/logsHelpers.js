@@ -18,21 +18,8 @@ module.exports = {
     },
 
     // All Transaction Logs
-    TransactionLog: function (req, res) {
+    TransactionLog: function (req, res, mess) {
         const Transaction = new TransactionLogs({
-            _id: new mongoose.Types.ObjectId(),
-            url: req.originalUrl,
-            method: req.method,
-            userIp: ip.address(),
-            status: res.statusCode,
-        });
-        Transaction.save();
-    },
-
-    // log With Message
-    logWithMessage: function (req, res, mess) {
-        console.log(mess);
-        const log_auth = new Logs({
             _id: new mongoose.Types.ObjectId(),
             url: req.originalUrl,
             method: req.method,
@@ -40,7 +27,8 @@ module.exports = {
             status: res.statusCode,
             message: mess
         });
-        log_auth.save();
-    }
+        Transaction.save();
+    },
+
 };
 
