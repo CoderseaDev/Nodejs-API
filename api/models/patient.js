@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 require('mongoose-type-email');
 const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-   
     patientId: {type: Number,default:1},
     name: {type: String,required: [true, 'Patient Name is required']},
     surname: {type: String,required: true},
@@ -24,7 +23,7 @@ const userSchema = mongoose.Schema({
     },
     blood_type:{
         type:String,
-        max:3,
+        maxlength:3,
         required: true
     },
     patient_complaint:{
@@ -66,8 +65,9 @@ const userSchema = mongoose.Schema({
         enum: ['false', 'true'],
         default: 'false'
     },
-    created_at    : { type: Date, required: true, default: Date.now },
-    updated_at    : { type: Date, required: true, default: Date.now },
+    created_at  : { type: Date, required: true, default: Date.now },
+    updated_at  : { type: Date },
+    deleted_at  : { type: Date },
 
 
 },{collection: "patients"} );

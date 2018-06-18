@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const passport = require('passport');
-const passportConf = require('../../passport');
 const PatientController = require('../controllers/patients');
-const passportSignIn = passport.authenticate('jwt', { session: false });
 
 
 router.post("/addNewPatient", PatientController.add_new_patient);
