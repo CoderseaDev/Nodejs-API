@@ -3,8 +3,8 @@ require('mongoose-type-email');
 const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     patientId: {type: Number,default:1},
-    name: {type: String,required: [true, 'Patient Name is required']},
-    surname: {type: String,required: true},
+    patientName: {type: String,required: [true, 'Patient Name is required']},
+    surName: {type: String,required: true},
     email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
     height:{
         type:Number,
@@ -21,25 +21,25 @@ const userSchema = mongoose.Schema({
         enum: ['male', 'female'],
         required: true
     },
-    blood_type:{
+    bloodType:{
         type:String,
         maxlength:3,
         required: true
     },
-    patient_complaint:{
+    complaint:{
         type:String,
         required: true
     },
-    date_of_birth:{
+    date:{
         type:Date,
         required: true
     },
-    home_no:{
+    homeNo:{
         type:Number,
         maxlength:10,
         required: true
     },
-    mobile_no:{
+    mobileNo:{
         type:Number,
         minlength:11,
         maxlength:13,
@@ -49,13 +49,13 @@ const userSchema = mongoose.Schema({
         type:String,
         required: true
     },
-    name_em :{
+    contactName :{
         type:String,
     },
-    relation:{
+    contactRelationship:{
         type:String,
     },
-    phone_no_em:{
+    contactPhoneNo:{
         type:Number,
         minlength:11,
         maxlength:13,
