@@ -10,6 +10,7 @@ const visitSchema = mongoose.Schema({
         enum: ['false', 'true'],
         default: 'false'
     },
+    visitImg: { type: String },
     created_at  : { type: Date, required: true, default: Date.now },
 
 
