@@ -51,7 +51,8 @@ exports.add_new_patient = (req, res, next) => {
                     helpers_log.TransactionLog(req, res, "Patient Added");
                     res.status(201).json({
                         status: "0",
-                        message: "Patient Added"
+                        message: "Patient Added",
+                        patient:patient
                     });
                 })
                 .catch(err => {
@@ -194,10 +195,15 @@ exports.update_patient = (req, res, next) => {
             .exec()
             .then(result => {
                 helpers_log.TransactionLog(req, res, 'Patient updated');
-                res.status(200).json({
-                    status: "0",
-                    message: 'Patient updated',
-                });
+                   Patient.findById(id).exec().then(result =>{
+                      const patient =result;
+                       res.status(200).json({
+                           status: "0",
+                           message: 'Patient updated',
+                           patient:patient
+                       });
+                 });
+
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
