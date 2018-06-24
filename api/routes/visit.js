@@ -34,8 +34,10 @@ const upload = multer({
 /* End upload */
 
 
-router.post("/addNewVisit", upload.single('visitImg'), VisitController.add_new_visit);
+router.post("/addVisit", upload.single('visitImg'), VisitController.add_visit);
 
-router.get("/:visitId", VisitController.get_visit) ;
+router.get("/:visitId", VisitController.get_visit);
+
+router.get("/", VisitController.get_all_visit);
 
 module.exports = router;
