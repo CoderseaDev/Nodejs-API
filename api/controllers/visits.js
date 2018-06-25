@@ -20,7 +20,7 @@ exports.add_visit = (req, res, next) => {
                 message: "Authorization failed"
             });
         }
-        Patient.findOne({_id: req.body.patientId})
+        Patient.findOne({_id: req.body.patient_id})
             .exec()
             .then(patient => {
                 if (!patient) {
@@ -31,9 +31,11 @@ exports.add_visit = (req, res, next) => {
                     });
                 }else{
                     var last_id;
+
                     FilesUploaded.findOne().sort({created_at: -1}).exec(function (err, file_res) {
                         if (file_res == null) {
                             last_id = 0;
+
                         } else {
                             last_id = file_res['fileId'];
                         }
@@ -55,21 +57,21 @@ exports.add_visit = (req, res, next) => {
                             _id: new mongoose.Types.ObjectId(),
                             
                             visitorName: req.body.visitorName,
-                            patientId:patient._id,
+                            patient_id:patient._id,
                             date: req.body.date,
                             comment: req.body.comment,
-                            image_id:files._id,
-                            visitImg: files.fileId,
+                             image_id:files._id,
+                             image: files.fileId,
                         });
                         visit
                             .save()
                             .then(result => {
                                 helpers_log.TransactionLog(req, res, "Visit Added");
-                                visit.visitImg = files.path;
+                                visit.image = files.path;
                                 res.status(201).json({
                                     status: "0",
                                     message: "Visit Added",
-                                    visitInfo:{ visit, patient}
+                                    data:{ visit, patient}
                                 });
                             })
                             .catch(err => {
@@ -133,7 +135,7 @@ exports.get_visit = (req, res, next) => {
                                     helpers_log.TransactionLog(req, res);
                                     res.status(200).json({
                                         status: "0",
-                                        VisitInfo: {visit, patient},
+                                        data: {visit, patient},
                                     });
                                 })
                         })
@@ -177,7 +179,7 @@ exports.get_all_visit = (req, res, next) => {
                             patientId: doc.patientId,
                             date: doc.date,
                             comment: doc.comment,
-                            visitImg: doc.visitImg,
+                            image: doc.image,
                             delete: doc.delete,
                         };
                     })

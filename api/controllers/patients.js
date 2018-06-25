@@ -103,7 +103,7 @@ exports.get_patient = (req, res, next) => {
                     helpers_log.TransactionLog(req, res);
                     const p = doc;
                    
-                Visit.find({patientId:p._id}).populate('image_id','path').exec().then(visits=>{
+                Visit.find({patient_id:p._id}).populate('image_id','path').exec().then(visits=>{
                         res.status(200).json({
                             status: "0",
                             patient: p,
@@ -111,7 +111,7 @@ exports.get_patient = (req, res, next) => {
                                 return {
                                     _id: doc._id,
                                     visitorName: doc.visitorName,
-                                    patientId: doc.patientId,
+                                    patient_id: doc.patient_id,
                                     date: doc.date,
                                     comment: doc.comment,
                                     image_info:doc.image_id,
