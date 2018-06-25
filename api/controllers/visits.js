@@ -39,12 +39,19 @@ exports.add_visit = (req, res, next) => {
                         } else {
                             last_id = file_res['fileId'];
                         }
+                        console.log(req.file);
+                           if(req.file === undefined) {
+                               return  res.status(500).json({
+                                   status: "2",
+                                   error: "No Image uploaded"
+                               });
+                           }
 
                         const files = new FilesUploaded({
                             _id: new mongoose.Types.ObjectId(),
                             fileId: last_id + 1,
                             originalname: req.file.originalname,
-                            filename:req.file.filename,
+                            filename: req.file.filename,
                             mimetype: req.file.mimetype,
                             destination: req.file.destination,
                             path: req.file.path,
