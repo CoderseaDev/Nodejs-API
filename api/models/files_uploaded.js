@@ -12,7 +12,6 @@ const filesSchema = mongoose.Schema({
 
 
 },{collection: "files"} );
-
 module.exports = mongoose.model('FilesUploaded', filesSchema);
 
 

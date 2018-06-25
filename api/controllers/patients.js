@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 const passport = require('passport');
 const passportConf = require('../../passport');
 const Patient = require("../models/patient");
+const Visit =require("../models/visit");
+const FilesUploaded = require("../models/files_uploaded");
 const helpers_log = require("../helpers/logsHelpers");
+let arr=[];
 
 
 // add patient
@@ -84,9 +87,11 @@ exports.get_patient = (req, res, next) => {
         }
 
         const id = req.params.patientId;
+        
         Patient.findById(id)
             .exec()
             .then(doc => {
+               
                 if (doc.delete == 'true') {
                     helpers_log.all_log(req, res, `No found the Patient with ID : ${doc._id} `);
                     res.status(404).json({
@@ -94,11 +99,29 @@ exports.get_patient = (req, res, next) => {
                         message: `No found the Patient with ID : ${doc._id} `
                     });
                 } else {
+                   
                     helpers_log.TransactionLog(req, res);
-                    res.status(200).json({
-                        status: "0",
-                        patient: doc,
-                    });
+                    const p = doc;
+                   
+                Visit.find({patientId:p._id}).populate('image_id','path').exec().then(visits=>{
+                        res.status(200).json({
+                            status: "0",
+                            patient: p,
+                            visits_info:visits.map(doc =>{
+                                return {
+                                    _id: doc._id,
+                                    visitorName: doc.visitorName,
+                                    patientId: doc.patientId,
+                                    date: doc.date,
+                                    comment: doc.comment,
+                                    image_info:doc.image_id,
+                                    
+                                }
+                            })
+                        
+                        });
+                    })
+                  
                 }
 
             })
