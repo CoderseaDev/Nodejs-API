@@ -53,16 +53,19 @@ exports.add_visit = (req, res, next) => {
 
                         const visit = new Visit({
                             _id: new mongoose.Types.ObjectId(),
+                            
                             visitorName: req.body.visitorName,
                             patientId:patient._id,
                             date: req.body.date,
                             comment: req.body.comment,
+                            image_id:files._id,
                             visitImg: files.fileId,
                         });
                         visit
                             .save()
                             .then(result => {
                                 helpers_log.TransactionLog(req, res, "Visit Added");
+                                visit.visitImg = files.path;
                                 res.status(201).json({
                                     status: "0",
                                     message: "Visit Added",
