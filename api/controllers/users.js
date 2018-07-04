@@ -83,9 +83,12 @@ exports.user_signin = (req, res, next) => {
                 } else {
                     console.log(user[0]);
                     const token = signToken(user);
+                         const tokenDecode = jwt.decode(token);
+                      const  exp_date = tokenDecode.exp;
                     const Token = new Tokens({
                         _id: new mongoose.Types.ObjectId(),
                         token: token,
+                        exp_date : exp_date,
                         user_id: user._id
                     });
                     Token.save();
@@ -94,6 +97,7 @@ exports.user_signin = (req, res, next) => {
                         status:"0",
                         message: "Auth successfully",
                         token: token,
+                        exp_date : exp_date,
                         userId: user._id
                     });
 
