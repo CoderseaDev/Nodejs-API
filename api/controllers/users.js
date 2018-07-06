@@ -7,14 +7,31 @@ const helpers_log = require("../helpers/logsHelpers");
 
 
 signToken = user => {
+
+    var now = 	Math.round(new Date().getTime()/1000.0);
+      var exp = now +(15 * 60);
+   // console.log(t);
+   // console.log(exp);
     return jwt.sign({
-        iss: 'Codersea',
+        iss: 'Codersea_access_token',
         sub: user._id,
         iat: new Date().getTime(), // current time
-        exp: new Date().setDate(new Date().getDate() + 1) // current time + 1 day ahead
+        exp: exp // current time + 1 day ahead
     }, process.env.JWT_KEY);
-}
+};
+refreshToken = user => {
 
+    var now = 	Math.round(new Date().getTime()/1000.0);
+    var exp = now +(60 * 60 * 24)*30;
+    // console.log(t);
+    // console.log(exp);
+    return jwt.sign({
+        iss: 'Codersea_refresh_token',
+        sub: user._id,
+        iat: new Date().getTime(), // current time
+        exp: exp // current time + 1 day ahead
+    }, process.env.JWT_KEY);
+};
 exports.user_signup = (req, res, next) => {
     User.find({email: req.body.email})
         .exec()
@@ -83,12 +100,14 @@ exports.user_signin = (req, res, next) => {
                 } else {
                     console.log(user[0]);
                     const token = signToken(user);
+                    const refreshtoken = refreshToken(user);
                          const tokenDecode = jwt.decode(token);
                       const  exp_date = tokenDecode.exp;
                     const Token = new Tokens({
                         _id: new mongoose.Types.ObjectId(),
                         token: token,
-                        exp_date : exp_date,
+                        refreshToken:refreshtoken,
+                        expiresIn : exp_date,
                         user_id: user._id
                     });
                     Token.save();
@@ -97,7 +116,8 @@ exports.user_signin = (req, res, next) => {
                         status:"0",
                         message: "Auth successfully",
                         token: token,
-                        exp_date : exp_date,
+                        refreshToken:refreshtoken,
+                        expiresIn : exp_date,
                         userId: user._id
                     });
 
