@@ -4,17 +4,35 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Tokens = require("../models/tokens");
 const helpers_log = require("../helpers/logsHelpers");
+const tokenList = {};
 
 
 signToken = user => {
+
+    var now = 	Math.round(new Date().getTime()/1000.0);
+      var exp = now +(15 * 60);
+   // console.log(t);
+   // console.log(exp);
     return jwt.sign({
-        iss: 'Codersea',
+        iss: 'Codersea_access_token',
         sub: user._id,
         iat: new Date().getTime(), // current time
-        exp: new Date().setDate(new Date().getDate() + 1) // current time + 1 day ahead
+        exp: exp // current time + 1 day ahead
     }, process.env.JWT_KEY);
-}
+};
+refreshToken = user => {
 
+    var now = 	Math.round(new Date().getTime()/1000.0);
+    var exp = now +(60 * 60 * 24)*30;
+    // console.log(t);
+    // console.log(exp);
+    return jwt.sign({
+        iss: 'Codersea_refresh_token',
+        sub: user._id,
+        iat: new Date().getTime(), // current time
+        exp: exp // current time + 1 day ahead
+    }, process.env.JWT_KEY);
+};
 exports.user_signup = (req, res, next) => {
     User.find({email: req.body.email})
         .exec()
@@ -81,14 +99,26 @@ exports.user_signin = (req, res, next) => {
                         message: "You entered wrong password"
                     });
                 } else {
-                    console.log(user[0]);
+                   var user_id =user._id;
                     const token = signToken(user);
-                         const tokenDecode = jwt.decode(token);
+                    const refreshtoken = refreshToken(user);
+                    let update = {
+                        "refreshToken" : refreshtoken
+                    };
+                    User.updateMany({_id: user_id}, {$set: update} )
+                        .exec()
+                        .then(result => {
+                        })
+                        .catch(err => {
+                        });
+
+                    const tokenDecode = jwt.decode(token);
                       const  exp_date = tokenDecode.exp;
                     const Token = new Tokens({
                         _id: new mongoose.Types.ObjectId(),
                         token: token,
-                        exp_date : exp_date,
+                        refreshToken:refreshtoken,
+                        expiresIn : exp_date,
                         user_id: user._id
                     });
                     Token.save();
@@ -97,7 +127,8 @@ exports.user_signin = (req, res, next) => {
                         status:"0",
                         message: "Auth successfully",
                         token: token,
-                        exp_date : exp_date,
+                        refreshToken:refreshtoken,
+                        expiresIn : exp_date,
                         userId: user._id
                     });
 
@@ -111,7 +142,48 @@ exports.user_signin = (req, res, next) => {
             });
         });
 };
+ exports.refreshToken = (req, res, next) => {
+     User.findOne({refreshToken: req.body.refreshToken})
+         .exec()
+         .then(user => {
+             if (!user) {
+                 helpers_log.all_log(req, res, "Sorry, You Are not A User");
+                 return  res.status(401).json({
+                     status:"3",
+                     message: "Sorry, you are not a user"
+                 });
+             }else{
+                     const token = signToken(user);
+                     const tokenDecode = jwt.decode(token);
+                     const  exp_date = tokenDecode.exp;
+                     const Token = new Tokens({
+                         _id: new mongoose.Types.ObjectId(),
+                         token: token,
+                         expiresIn : exp_date,
+                         refreshToken:req.body.refreshToken,
+                         user_id: user._id
+                     });
+                     Token.save();
+                     helpers_log.TransactionLog(req, res, "Auth successfully");
+                     res.status(200).json({
+                         status:"0",
+                         message: "Auth successfully",
+                         token: token,
+                         expiresIn : exp_date,
+                         userId: user._id
+                     });
 
+                 }
+
+         })
+         .catch(err => {
+             helpers_log.all_log(req, res, err.message);
+             res.status(500).json({
+                 error: err.message
+             });
+         });
+
+};
 exports.user_delete = (req, res, next) => {
     User.remove({_id: req.params.userId})
         .exec()
