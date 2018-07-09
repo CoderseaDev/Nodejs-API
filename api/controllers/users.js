@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Tokens = require("../models/tokens");
 const helpers_log = require("../helpers/logsHelpers");
+const tokenList = {};
 
 
 signToken = user => {
@@ -98,10 +99,20 @@ exports.user_signin = (req, res, next) => {
                         message: "You entered wrong password"
                     });
                 } else {
-                    console.log(user[0]);
+                   var user_id =user._id;
                     const token = signToken(user);
                     const refreshtoken = refreshToken(user);
-                         const tokenDecode = jwt.decode(token);
+                    let update = {
+                        "refreshToken" : refreshtoken
+                    };
+                    User.updateMany({_id: user_id}, {$set: update} )
+                        .exec()
+                        .then(result => {
+                        })
+                        .catch(err => {
+                        });
+
+                    const tokenDecode = jwt.decode(token);
                       const  exp_date = tokenDecode.exp;
                     const Token = new Tokens({
                         _id: new mongoose.Types.ObjectId(),
@@ -131,7 +142,48 @@ exports.user_signin = (req, res, next) => {
             });
         });
 };
+ exports.refreshToken = (req, res, next) => {
+     User.findOne({refreshToken: req.body.refreshToken})
+         .exec()
+         .then(user => {
+             if (!user) {
+                 helpers_log.all_log(req, res, "Sorry, You Are not A User");
+                 return  res.status(401).json({
+                     status:"3",
+                     message: "Sorry, you are not a user"
+                 });
+             }else{
+                     const token = signToken(user);
+                     const tokenDecode = jwt.decode(token);
+                     const  exp_date = tokenDecode.exp;
+                     const Token = new Tokens({
+                         _id: new mongoose.Types.ObjectId(),
+                         token: token,
+                         expiresIn : exp_date,
+                         refreshToken:req.body.refreshToken,
+                         user_id: user._id
+                     });
+                     Token.save();
+                     helpers_log.TransactionLog(req, res, "Auth successfully");
+                     res.status(200).json({
+                         status:"0",
+                         message: "Auth successfully",
+                         token: token,
+                         expiresIn : exp_date,
+                         userId: user._id
+                     });
 
+                 }
+
+         })
+         .catch(err => {
+             helpers_log.all_log(req, res, err.message);
+             res.status(500).json({
+                 error: err.message
+             });
+         });
+
+};
 exports.user_delete = (req, res, next) => {
     User.remove({_id: req.params.userId})
         .exec()
