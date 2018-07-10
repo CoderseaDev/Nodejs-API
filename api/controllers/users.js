@@ -17,7 +17,7 @@ signToken = user => {
         iss: 'Codersea_access_token',
         sub: user._id,
         iat: new Date().getTime(), // current time
-        exp: exp // current time + 1 day ahead
+        exp: exp // 15 min
     }, process.env.JWT_KEY);
 };
 refreshToken = user => {
@@ -30,7 +30,7 @@ refreshToken = user => {
         iss: 'Codersea_refresh_token',
         sub: user._id,
         iat: new Date().getTime(), // current time
-        exp: exp // current time + 1 day ahead
+        exp: exp // 30 days
     }, process.env.JWT_KEY);
 };
 exports.user_signup = (req, res, next) => {
@@ -143,16 +143,17 @@ exports.user_signin = (req, res, next) => {
         });
 };
  exports.refreshToken = (req, res, next) => {
-     User.findOne({refreshToken: req.body.refreshToken})
-         .exec()
-         .then(user => {
-             if (!user) {
-                 helpers_log.all_log(req, res, "Sorry, You Are not A User");
-                 return  res.status(401).json({
-                     status:"3",
-                     message: "Sorry, you are not a user"
-                 });
-             }else{
+     if(req.body.refreshToken != null){
+         User.findOne({refreshToken: req.body.refreshToken})
+             .exec()
+             .then(user => {
+                 if (!user) {
+                     helpers_log.all_log(req, res, "Sorry, You Are not A User");
+                     return  res.status(401).json({
+                         status:"3",
+                         message: "Sorry, you are not a user"
+                     });
+                 }else{
                      const token = signToken(user);
                      const tokenDecode = jwt.decode(token);
                      const  exp_date = tokenDecode.exp;
@@ -172,16 +173,22 @@ exports.user_signin = (req, res, next) => {
                          expiresIn : exp_date,
                          userId: user._id
                      });
-
                  }
-
-         })
-         .catch(err => {
-             helpers_log.all_log(req, res, err.message);
-             res.status(500).json({
-                 error: err.message
+             })
+             .catch(err => {
+                 helpers_log.all_log(req, res, err.message);
+                 res.status(500).json({
+                     error: err.message
+                 });
              });
+     }else {
+         helpers_log.all_log(req, res, "RefreshToken is reqired");
+         res.status(500).json({
+             status:"1",
+             error: "RefreshToken is reqired"
          });
+     }
+
 
 };
 exports.user_delete = (req, res, next) => {
