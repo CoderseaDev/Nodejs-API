@@ -26,7 +26,7 @@ exports.add_visit = (req, res, next) => {
             .then(patient => {
                 if (!patient) {
                     helpers_log.all_log(req, res, `No found the Patient with ID : ${patient._id} `);
-                    return  res.status(401).json({
+                    return  res.status(200).json({
                         status:"3",
                         message: `No found the Patient with ID : ${patient._id} `
                     });
@@ -42,7 +42,7 @@ exports.add_visit = (req, res, next) => {
                         }
                         console.log(req.file);
                            if(req.file === undefined) {
-                               return  res.status(500).json({
+                               return  res.status(200).json({
                                    status: "2",
                                    error: "No Image uploaded"
                                });
@@ -84,7 +84,7 @@ exports.add_visit = (req, res, next) => {
                             })
                             .catch(err => {
                                 helpers_log.all_log(req, res, err.message);
-                                res.status(500).json({
+                                res.status(200).json({
                                     status: "2",
                                     error: err.message
                                 });
@@ -94,7 +94,7 @@ exports.add_visit = (req, res, next) => {
             })
             .catch(err => {
             helpers_log.all_log(req, res, err.message);
-            res.status(500).json({
+            res.status(200).json({
                 status: "2",
                 error: err.message
             });
@@ -126,7 +126,7 @@ exports.get_visit = (req, res, next) => {
             .then(doc => {
                 if (doc.delete == 'true') {
                     helpers_log.all_log(req, res, `No found the Patient with ID : ${doc._id} `);
-                    res.status(404).json({
+                    res.status(200).json({
                         status: "3",
                         message: `No found the Patient with ID : ${doc._id} `
                     });
@@ -152,7 +152,7 @@ exports.get_visit = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -196,7 +196,7 @@ exports.get_all_visit = (req, res, next) => {
                     res.status(200).json(response);
                 } else {
                     helpers_log.all_log(req, res, 'No Visits found');
-                    res.status(404).json({
+                    res.status(200).json({
                         status: "3",
                         message: 'No Visits found'
                     });
@@ -204,7 +204,7 @@ exports.get_all_visit = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };

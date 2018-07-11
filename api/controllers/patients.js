@@ -52,7 +52,7 @@ exports.add_new_patient = (req, res, next) => {
                 .save()
                 .then(result => {
                     helpers_log.TransactionLog(req, res, "Patient Added");
-                    res.status(201).json({
+                    res.status(200).json({
                         status: "0",
                         message: "Patient Added",
                         patient:patient
@@ -60,7 +60,7 @@ exports.add_new_patient = (req, res, next) => {
                 })
                 .catch(err => {
                     helpers_log.all_log(req, res, err.message);
-                    res.status(500).json({
+                    res.status(200).json({
                         status: "2",
                         error: err.message
                     });
@@ -94,7 +94,7 @@ exports.get_patient = (req, res, next) => {
                
                 if (doc.delete == 'true') {
                     helpers_log.all_log(req, res, `No found the Patient with ID : ${doc._id} `);
-                    res.status(404).json({
+                    res.status(200).json({
                         status: "3",
                         message: `No found the Patient with ID : ${doc._id} `
                     });
@@ -127,7 +127,7 @@ exports.get_patient = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -182,7 +182,7 @@ exports.get_all_patient = (req, res, next) => {
                     res.status(200).json(response);
                 } else {
                     helpers_log.all_log(req, res, 'No Patients found');
-                    res.status(404).json({
+                    res.status(200).json({
                         status: "3",
                         message: 'No Patients found'
                     });
@@ -190,7 +190,7 @@ exports.get_all_patient = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -230,7 +230,7 @@ exports.update_patient = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -263,7 +263,7 @@ exports.delete_patient = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
