@@ -5,7 +5,7 @@ const TransactionLogs = require("../models/transaction_logs");
 
 module.exports = {
     // All logs
-    all_log: function (req, res, status, err_mss, req_res_json) {
+    all_log: function (req, res, status, err_mss, req_json,res_json) {
         const log = new Logs({
             _id: new mongoose.Types.ObjectId(),
             url: req.originalUrl,
@@ -13,7 +13,8 @@ module.exports = {
             userIp: ip.address(),
             status: status,
             message: err_mss,
-            request_response_json: req_res_json
+            request_json: req_json,
+            response_json: res_json,
         });
         log.save();
     },

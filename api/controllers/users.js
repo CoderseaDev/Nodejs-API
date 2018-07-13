@@ -63,7 +63,7 @@ exports.user_signup = (req, res, next) => {
                             .save()
                             .then(result => {
                                 helpers_log.TransactionLog(req, res, "User created");
-                                helpers_log.all_log(req, res, "0", 'User created',User_json_signup)
+                                helpers_log.all_log(req, res, "0", 'User created',User_json_signup,user)
                                 res.status(200).json({
                                     status: "0",
                                     message: "User created"
@@ -125,8 +125,16 @@ exports.user_signin = (req, res, next) => {
                         user_id: user._id
                     });
                     Token.save();
+                    let response = JSON.stringify( {
+                        status: "0",
+                        message: "Auth successfully",
+                        token: token,
+                        refreshToken: refreshtoken,
+                        expiresIn: exp_date,
+                        userId: user._id
+                    });
                     helpers_log.TransactionLog(req, res ,"Auth successfully");
-                    helpers_log.all_log(req, res, "0", "Auth successfully",User_json_signin);
+                    helpers_log.all_log(req, res, "0", "Auth successfully",User_json_signin,response);
                     res.status(200).json({
                         status: "0",
                         message: "Auth successfully",
@@ -148,8 +156,8 @@ exports.user_signin = (req, res, next) => {
         });
 };
 exports.refreshToken = (req, res, next) => {
+    let refreshToken_json = JSON.stringify({refreshToken: req.body.refreshToken});
     if (req.body.refreshToken != null) {
-        let refreshToken_json = JSON.stringify({refreshToken: req.body.refreshToken});
         User.findOne({refreshToken: req.body.refreshToken})
             .exec()
             .then(user => {
@@ -171,8 +179,15 @@ exports.refreshToken = (req, res, next) => {
                         user_id: user._id
                     });
                     Token.save();
+                    let response = JSON.stringify( {
+                        status: "0",
+                        message: "Auth successfully",
+                        token: token,
+                        expiresIn: exp_date,
+                        userId: user._id
+                    });
                     helpers_log.TransactionLog(req, res, "Auth successfully");
-                    helpers_log.all_log(req, res,"0", "Auth successfully",refreshToken_json);
+                    helpers_log.all_log(req, res,"0", "Auth successfully",refreshToken_json,response);
                     res.status(200).json({
                         status: "0",
                         message: "Auth successfully",
