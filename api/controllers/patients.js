@@ -15,7 +15,7 @@ exports.add_new_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.all_log(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "1","Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -28,7 +28,23 @@ exports.add_new_patient = (req, res, next) => {
             } else {
                 last_id = post['patientId'];
             }
-
+            let req_patient = JSON.stringify({
+                patientName: req.body.patientName,
+                email: req.body.email,
+                surName: req.body.surName,
+                height: req.body.height,
+                weight: req.body.weight,
+                gender: req.body.gender,
+                bloodType: req.body.bloodType,
+                complaint: req.body.complaint,
+                date: req.body.date,
+                homeNo: req.body.homeNo,
+                mobileNo: req.body.mobileNo,
+                address: req.body.address,
+                contactName: req.body.contactName,
+                contactRelationship: req.body.contactRelationship,
+                contactPhoneNo: req.body.contactPhoneNo,
+            });
             const patient = new Patient({
                 _id: new mongoose.Types.ObjectId(),
                 patientId: last_id + 1,
@@ -52,15 +68,16 @@ exports.add_new_patient = (req, res, next) => {
                 .save()
                 .then(result => {
                     helpers_log.TransactionLog(req, res, "Patient Added");
-                    res.status(201).json({
+                    helpers_log.all_log(req, res, "0","Patient Added",req_patient,patient);
+                    res.status(200).json({
                         status: "0",
                         message: "Patient Added",
                         patient:patient
                     });
                 })
                 .catch(err => {
-                    helpers_log.all_log(req, res, err.message);
-                    res.status(500).json({
+                    helpers_log.all_log(req, res, "2", err.message);
+                    res.status(200).json({
                         status: "2",
                         error: err.message
                     });
@@ -79,7 +96,7 @@ exports.get_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.all_log(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "1","Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -93,8 +110,8 @@ exports.get_patient = (req, res, next) => {
             .then(doc => {
                
                 if (doc.delete == 'true') {
-                    helpers_log.all_log(req, res, `No found the Patient with ID : ${doc._id} `);
-                    res.status(404).json({
+                    helpers_log.all_log(req, res,"3", `No found the Patient with ID : ${doc._id} `,JSON.stringify({id : doc._id}));
+                    res.status(200).json({
                         status: "3",
                         message: `No found the Patient with ID : ${doc._id} `
                     });
@@ -102,9 +119,26 @@ exports.get_patient = (req, res, next) => {
                    
                     helpers_log.TransactionLog(req, res);
                     const p = doc;
-                   
+
                 Visit.find({patient_id:p._id}).populate('image_id','path').exec().then(visits=>{
-                        res.status(200).json({
+                    let res_patient =
+                        JSON.stringify({
+                            status: "0",
+                            patient: p,
+                            visits_info: visits.map(doc => {
+                                return {
+                                    _id: doc._id,
+                                    visitorName: doc.visitorName,
+                                    patient_id: doc.patient_id,
+                                    date: doc.date,
+                                    comment: doc.comment,
+                                    image_info: doc.image_id,
+
+                                }
+                            })
+                        });
+                    helpers_log.all_log(req, res,"0", `Patient with ID : ${doc._id} `,JSON.stringify({id : doc._id}),res_patient);
+                    res.status(200).json({
                             status: "0",
                             patient: p,
                             visits_info:visits.map(doc =>{
@@ -115,19 +149,15 @@ exports.get_patient = (req, res, next) => {
                                     date: doc.date,
                                     comment: doc.comment,
                                     image_info:doc.image_id,
-                                    
                                 }
                             })
-                        
                         });
                     })
-                  
                 }
-
             })
             .catch(err => {
-                helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                helpers_log.all_log(req, res, "2", err.message);
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -141,7 +171,7 @@ exports.get_all_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.all_log(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "1","Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -179,18 +209,19 @@ exports.get_all_patient = (req, res, next) => {
                     })
                 };
                 if (docs.length != []) {
+                    helpers_log.all_log(req, res, "0","Get all patients successfully", "",JSON.stringify(response));
                     res.status(200).json(response);
                 } else {
-                    helpers_log.all_log(req, res, 'No Patients found');
-                    res.status(404).json({
+                    helpers_log.all_log(req, res, "3",'No Patients found');
+                    res.status(200).json({
                         status: "3",
                         message: 'No Patients found'
                     });
                 }
             })
             .catch(err => {
-                helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                helpers_log.all_log(req, res, "2",err.message);
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -198,39 +229,47 @@ exports.get_all_patient = (req, res, next) => {
 
 // update one patient by id
 exports.update_patient = (req, res, next) => {
-
     passport.authenticate('jwt', function (err, user, info) {
         if (err) {
             return next(err);
         }
         if (!user) {
-            helpers_log.all_log(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "1","Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
             });
         }
-
         const id = req.params.patientId;
         let update = req.body;
             update.updated_at = Date.now();
+
         Patient.updateMany({_id: id}, {$set: update} )
             .exec()
             .then(result => {
                 helpers_log.TransactionLog(req, res, 'Patient updated');
                    Patient.findById(id).exec().then(result =>{
                       const patient =result;
+                       let req_update_json = JSON.stringify({
+                           _id: id,
+                           update_data: update
+                       });
+                      let res_upadte_json =  JSON.stringify({
+                          status: "0",
+                          message: 'Patient updated',
+                          patient:patient
+                      });
+                       helpers_log.all_log(req, res, "0","Patient updated",req_update_json, res_upadte_json);
                        res.status(200).json({
                            status: "0",
                            message: 'Patient updated',
                            patient:patient
                        });
                  });
-
             })
             .catch(err => {
-                helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                helpers_log.all_log(req, res, "2",err.message);
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
@@ -243,7 +282,7 @@ exports.delete_patient = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            helpers_log.all_log(req, res, "Authorization failed");
+            helpers_log.all_log(req, res, "1","Authorization failed");
             return res.json({
                 status: "1",
                 message: "Authorization failed"
@@ -256,14 +295,20 @@ exports.delete_patient = (req, res, next) => {
             .exec()
             .then(result => {
                 helpers_log.TransactionLog(req, res, 'Patient deleted');
+                let req_delete_json = JSON.stringify({_id: id});
+                let res_delete_json = JSON.stringify({
+                    status: "0",
+                    message: 'Patient deleted',
+                });
+                helpers_log.all_log(req, res, "0","Patient deleted",req_delete_json, res_delete_json);
                 res.status(200).json({
                     status: "0",
                     message: 'Patient deleted',
                 });
             })
             .catch(err => {
-                helpers_log.all_log(req, res, err.message);
-                res.status(500).json({status: "2", error: err.message});
+                helpers_log.all_log(req, res, "2",err.message);
+                res.status(200).json({status: "2", error: err.message});
             });
     })(req, res, next);
 };
