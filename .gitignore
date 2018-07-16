@@ -1,6 +1,7 @@
 node_modules
 
 .htaccess
+.env
 .DS_Store
 .idea
 .settings/
@@ -20,6 +21,5 @@ cli.ini
 
 composer.lock
 vendor
-
 
 .idea/inspectionProfiles/
