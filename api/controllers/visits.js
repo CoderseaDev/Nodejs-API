@@ -92,7 +92,7 @@ exports.add_visit = (req, res, next) => {
             .then(patient => {
                 if (!patient) {
                     helpers_log.all_log(req, res, "3", `No found the Patient with ID : ${patient._id} `);
-                    return res.status(200).json({
+                    return res.status(500).json({
                         status: "3",
                         message: `No found the Patient with ID : ${patient._id} `
                     });
@@ -107,7 +107,7 @@ exports.add_visit = (req, res, next) => {
                         console.log(req.file);
                         if (req.file === undefined) {
                             helpers_log.all_log(req, res, "2", "No Image uploaded");
-                            return res.status(200).json({
+                            return res.status(500).json({
                                 status: "2",
                                 error: "No Image uploaded"
                             });

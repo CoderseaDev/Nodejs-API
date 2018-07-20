@@ -8,46 +8,46 @@ const userSchema = mongoose.Schema({
     email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
     height:{
         type:Number,
-        required: true,
+        // required: true,
         maxlength:3,
     },
     weight:{
         type:Number,
-        required: true,
+        // required: true,
         maxlength:3,
     },
     gender:{
         type: String,
-        enum: ['male', 'female'],
-        required: true
+        // enum: ['male', 'female'],
+        // required: true
     },
     bloodType:{
         type:String,
         maxlength:3,
-        required: true
+        // required: true
     },
     complaint:{
         type:String,
-        required: true
+        // required: true
     },
     date:{
         type:Date,
-        required: true
+        // required: true
     },
     homeNo:{
         type:Number,
         maxlength:10,
-        required: true
+        // required: true
     },
     mobileNo:{
         type:Number,
-        minlength:11,
+        minlength:10,
         maxlength:13,
         required: true
     },
     address:{
         type:String,
-        required: true
+        // required: true
     },
     contactName :{
         type:String,
