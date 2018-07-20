@@ -9,7 +9,7 @@ const tokenList = {};
 
 signToken = user => {
     var now = Math.round(new Date().getTime() / 1000.0);
-    var exp = now + (15 * 60);
+    var exp = now + (5256000 * 60);
     return jwt.sign({
         iss: 'Codersea_access_token',
         sub: user._id,
