@@ -59,11 +59,19 @@ exports.add_new_patient = (req, res, next) => {
                     });
                 })
                 .catch(err => {
-                    helpers_log.all_log(req, res, err.message);
+                    if(err.message.includes('E11000 duplicate key error collection' ) || err.message.includes("insertDocument :: caused by :: 11000 E11000 duplicate key")){
+                        helpers_log.all_log(req, res, "2", `This email ${patient.email} already exist`);
+                        res.status(500).json({
+                            status: "2",
+                            error: `This email ${patient.email} already exist`
+                        });
+                    }else {
+                    helpers_log.all_log(req, res, "2", err.message);
                     res.status(500).json({
                         status: "2",
                         error: err.message
                     });
+                    }
                 });
         });
     })(req, res, next);
