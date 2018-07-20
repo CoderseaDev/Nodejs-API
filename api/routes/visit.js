@@ -38,6 +38,4 @@ router.post("/addVisit", upload.single('image'), VisitController.add_visit);
 
 router.get("/:visitId", VisitController.get_visit);
 
-router.get("/", VisitController.get_all_visit);
-
 module.exports = router;
