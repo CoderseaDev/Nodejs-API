@@ -27,6 +27,26 @@ refreshToken = user => {
         exp: exp // 30 days
     }, process.env.JWT_KEY);
 };
+
+/**
+ * @apiVersion 1.0.0
+ * @api {post} /signup Signup
+ * @apiName Signup
+ * @apiGroup User
+ * @apiParam {email} email  unique and requried.
+ * @apiParam {String} password  requried .
+ * @apiSuccess {String} message "User created"
+ * @apiSuccessExample Example data on success:
+ * {
+    "status": "0",
+    "message": "User created"
+}
+ *@apiErrorExample Example validation error:
+ {
+    "status": "2",
+    "message": "Mail exists"
+}
+ */
 exports.user_signup = (req, res, next) => {
     User.find({email: req.body.email})
         .exec()
@@ -71,7 +91,7 @@ exports.user_signup = (req, res, next) => {
                             })
                             .catch(err => {
                                 helpers_log.all_log(req, res, "2", err.message,User_json_signup)
-                                res.status(200).json({
+                                res.status(500).json({
                                     status: "2",
                                     error: err.message
                                 });
@@ -82,6 +102,32 @@ exports.user_signup = (req, res, next) => {
         });
 };
 
+/**
+ * @apiVersion 1.0.0
+ * @api {post} /signin Signin
+ * @apiName Signin
+ * @apiGroup User
+ * @apiParam {email} email  unique and requried.
+ * @apiParam {password} password  requried .
+ * @apiSuccess {String} message "Auth successfully"
+ * @apiSuccess {String} token
+ * @apiSuccess {String} expiresIn
+ * @apiSuccess {String} userId
+ * @apiSuccessExample Example data on success:
+ * {
+    "status": "0",
+    "message": "Auth successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb2RlcnNlYV9hY2Nlc3NfdG9rZW4iLCJzdWIiOiI1YjRjZTAxMWZkODJjZjA3Nzg2N2MzZDIiLCJpYXQiOjE1MzE5OTYyMjI2NDIsImV4cCI6MTUzMTk5NzEyM30.bSjkxZ4mE7Ejzo1lzt7L8v6wxVg_6WMhfDXZ91sc9DY",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJDb2RlcnNlYV9yZWZyZXNoX3Rva2VuIiwic3ViIjoiNWI0Y2UwMTFmZDgyY2YwNzc4NjdjM2QyIiwiaWF0IjoxNTMxOTk2MjIyNjQzLCJleHAiOjE1MzQ1ODgyMjN9.hyl0Ym5C1Zqw2nu2UtUdm0b8c6Rz8ZernFMTkLdyHz0",
+    "expiresIn": 1531997123,
+    "userId": "5b4ce011fd82cf077867c3d2"
+}
+ *@apiErrorExample Example validation error:
+ {
+    "status": "2",
+    "message": "You entered wrong password"
+}
+ */
 exports.user_signin = (req, res, next) => {
     User.findOne({email: req.body.email})
         .exec()
@@ -149,7 +195,7 @@ exports.user_signin = (req, res, next) => {
         })
         .catch(err => {
             helpers_log.all_log(req, res, "2", err.message,User_json_signin);
-            res.status(200).json({
+            res.status(500).json({
                 status: "2",
                 error: err.message
             });
@@ -199,7 +245,7 @@ exports.refreshToken = (req, res, next) => {
             })
             .catch(err => {
                 helpers_log.all_log(req, res,"1", err.message,refreshToken_json);
-                res.status(200).json({
+                res.status(500).json({
                     status: "1",
                     error: err.message
                 });
@@ -228,7 +274,7 @@ exports.user_delete = (req, res, next) => {
         })
         .catch(err => {
             helpers_log.all_log(req, res,"2", err.message,user_delete_json);
-            res.status(200).json({
+            res.status(500).json({
                 status:"2",
                 error: err.message
             });
