@@ -164,7 +164,7 @@ exports.add_visit = (req, res, next) => {
                                 helpers_log.TransactionLog(req, res, "Visit Added");
                                 helpers_log.all_log(req, res, "0", "Visit Added", req_visit_json, res_visit_json);
                                 visit.image = files.path;
-                                res.status(201).json({
+                                res.status(200).json({
                                     status: "0",
                                     message: "Visit Added",
                                     data: {visit, patient}

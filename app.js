@@ -23,8 +23,14 @@ app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-
 /* End Middelware */
+
+/* Doc */
+app.get('/doc', function(req,res){
+    res.sendfile(__dirname + '/doc/index.html');
+});
+app.use('/', express.static('doc'));
+/* End:Doc */
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
