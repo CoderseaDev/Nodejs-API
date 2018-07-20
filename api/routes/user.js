@@ -10,9 +10,10 @@ const passportSignIn = passport.authenticate('jwt', { session: false });
 router.post("/signup", validateBody(schemas.authSchema), UserController.user_signup);
 
 router.post("/signin", validateBody(schemas.authSchema), UserController.user_signin);
+router.post("/refreshtoken", UserController.refreshToken);
 
 router.delete("/:userId", checkAuth, UserController.user_delete);
 router.get('/secret'
-    , passportSignIn, (req, res, next) => {console.log('entered');});
+    , (req, res, next) => {console.log('entered');});
 
 module.exports = router;

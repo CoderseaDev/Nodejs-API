@@ -13,7 +13,7 @@ module.exports = {
             next();
         }
     },
-
+z
     schemas: {
         patientSchema: Joi.object().keys({
 
