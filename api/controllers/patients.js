@@ -514,28 +514,56 @@ exports.update_patient = (req, res, next) => {
         const id = req.params.patientId;
         let update = req.body;
         update.updated_at = Date.now();
+        let req_update_json = JSON.stringify({
+            _id: id,
+            update_data: update
+        });
         if (req.body.email != null) {
             Patient.find({email: req.body.email})
                 .exec()
                 .then(docs => {
-                    if (docs.length != 0) {
-                        helpers_log.all_log(req, res, "2", `This email ${req.body.email} already exist`);
-                        res.status(500).json({
-                            status: "2",
-                            error: `This email ${req.body.email} already exist`
-                        });
-                    }
-                    else {
-                        Patient.updateMany({_id: id}, {$set: update})
-                            .exec()
-                            .then(result => {
-                                helpers_log.TransactionLog(req, res, 'Patient updated');
+                    Patient.findById(id)
+                        .exec()
+                        .then(patient_doc => {
+                        console.log(patient_doc.email);
+                        if(patient_doc.email == req.body.email){
+                                Patient.updateMany({_id: id}, {$set: update})
+                                    .exec()
+                                    .then(result => {
+                                    helpers_log.TransactionLog(req, res, 'Patient updated');
                                 Patient.findById(id).exec().then(result => {
                                     const patient = result;
-                                    let req_update_json = JSON.stringify({
-                                        _id: id,
-                                        update_data: update
-                                    });
+                                let res_upadte_json = JSON.stringify({
+                                    status: "0",
+                                    message: 'Patient updated',
+                                    patient: patient
+                                });
+                                helpers_log.all_log(req, res, "0", "Patient updated", req_update_json, res_upadte_json);
+                                res.status(200).json({
+                                    status: "0",
+                                    message: 'Patient updated',
+                                    patient: patient
+                                });
+                            });
+                            })
+                            .catch(err => {
+                                    helpers_log.all_log(req, res, "2", err.message);
+                                res.status(500).json({status: "2", error: err.message});
+                            });
+                        } else {
+                            if (docs.length != 0) {
+                                helpers_log.all_log(req, res, "2", `This email ${req.body.email} already exist`);
+                                res.status(500).json({
+                                    status: "2",
+                                    error: `This email ${req.body.email} already exist`
+                                });
+                            }else {
+                                    Patient.updateMany({_id: id}, {$set: update})
+                                        .exec()
+                                        .then(result => {
+                                        helpers_log.TransactionLog(req, res, 'Patient updated');
+                                    Patient.findById(id).exec().then(result => {
+                                        const patient = result;
                                     let res_upadte_json = JSON.stringify({
                                         status: "0",
                                         message: 'Patient updated',
@@ -548,48 +576,40 @@ exports.update_patient = (req, res, next) => {
                                         patient: patient
                                     });
                                 });
-                            })
-                            .catch(err => {
-                                helpers_log.all_log(req, res, "2", err.message);
-                                res.status(500).json({status: "2", error: err.message});
-                            });
+                                })
+                                .catch(err => {
+                                        helpers_log.all_log(req, res, "2", err.message);
+                                    res.status(500).json({status: "2", error: err.message});
+                                });
+                            }
                     }
-                })
-                .catch(err => {
-                    helpers_log.all_log(req, res, "2", err.message);
-                    res.status(500).json({
-                        status: "2",
-                        error: err.message
-                    });
-                })
+            })
+            })
+
         }else {
             Patient.updateMany({_id: id}, {$set: update})
                 .exec()
                 .then(result => {
-                    helpers_log.TransactionLog(req, res, 'Patient updated');
-                    Patient.findById(id).exec().then(result => {
-                        const patient = result;
-                        let req_update_json = JSON.stringify({
-                            _id: id,
-                            update_data: update
-                        });
-                        let res_upadte_json = JSON.stringify({
-                            status: "0",
-                            message: 'Patient updated',
-                            patient: patient
-                        });
-                        helpers_log.all_log(req, res, "0", "Patient updated", req_update_json, res_upadte_json);
-                        res.status(200).json({
-                            status: "0",
-                            message: 'Patient updated',
-                            patient: patient
-                        });
-                    });
-                })
-                .catch(err => {
-                    helpers_log.all_log(req, res, "2", err.message);
-                    res.status(500).json({status: "2", error: err.message});
-                });
+                helpers_log.TransactionLog(req, res, 'Patient updated');
+            Patient.findById(id).exec().then(result => {
+                const patient = result;
+            let res_upadte_json = JSON.stringify({
+                status: "0",
+                message: 'Patient updated',
+                patient: patient
+            });
+            helpers_log.all_log(req, res, "0", "Patient updated", req_update_json, res_upadte_json);
+            res.status(200).json({
+                status: "0",
+                message: 'Patient updated',
+                patient: patient
+            });
+        });
+        })
+        .catch(err => {
+                helpers_log.all_log(req, res, "2", err.message);
+            res.status(500).json({status: "2", error: err.message});
+        });
         }
     })(req, res, next);
 };
