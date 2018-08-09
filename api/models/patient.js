@@ -4,8 +4,8 @@ const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     patientId: {type: Number,default:1},
     patientName: {type: String,required: [true, 'Patient Name is required']},
-    surName: {type: String,required: true},
-    email:{type:mongoose.SchemaTypes.Email,required: true,unique:true},
+    surName: {type: String},
+    email:{type:mongoose.SchemaTypes.Email,unique:true},
     height:{
         type:Number,
         // required: true,

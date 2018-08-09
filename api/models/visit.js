@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const visitSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    visitorName: {type: String,required: [true, 'visitor Name is required']},
+    visitorName: {type: String},
     patient_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
     image_id : { type: mongoose.Schema.Types.ObjectId, ref: 'FilesUploaded' },
-    date: {type: Date,required: true},
-    comment:{type: String,required: true},
+    date: {type: Date},
+    comment:{type: String},
     delete:{
         type: String,
         enum: ['false', 'true'],
