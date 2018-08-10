@@ -369,7 +369,7 @@ exports.get_all_patient = (req, res, next) => {
             });
         }
 
-        Patient.find({delete: {$ne: "true"}})
+        Patient.find({delete: {$ne: "true"}}).sort({created_at: 'descending'})
             .exec()
             .then(docs => {
                 helpers_log.TransactionLog(req, res);
