@@ -96,9 +96,8 @@ exports.add_visit = (req, res, next) => {
                     });
                 } else {
 
-                    if(req.body.image == null){
+                    if(req.body.image === null){
 
-                        console.log(req.body);
                         const visit = new Visit({
                             _id: new mongoose.Types.ObjectId(),
                             patient_id: patient._id,
@@ -135,7 +134,6 @@ exports.add_visit = (req, res, next) => {
                                 });
                             });
                     }else {
-
                             const files = new FilesUploaded({
                                 _id: new mongoose.Types.ObjectId(),
                                 originalname: req.file.originalname,
@@ -145,6 +143,7 @@ exports.add_visit = (req, res, next) => {
                                 path: req.file.path,
                                 size: req.file.size,
                             });
+
                             files.save();
                             let res_files = JSON.stringify({
                                 _id: new mongoose.Types.ObjectId(),
@@ -163,6 +162,7 @@ exports.add_visit = (req, res, next) => {
                                 date: req.body.date,
                                 comment: req.body.comment,
                                 image: files._id,
+                                image_id: files._id,
                             });
                             visit
                                 .save()
@@ -173,6 +173,7 @@ exports.add_visit = (req, res, next) => {
                                         date: req.body.date,
                                         comment: req.body.comment,
                                         image: files._id,
+
                                     });
                                     let res_visit_json = JSON.stringify({
                                         status: "0",

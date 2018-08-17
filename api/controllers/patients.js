@@ -98,78 +98,151 @@ exports.add_new_patient = (req, res, next) => {
                 message: "Authorization failed"
             });
         }
-        var last_id;
-        Patient.findOne().sort({created_at: -1}).exec(function (err, post) {
-            if (post == null) {
-                last_id = 0;
-            } else {
-                last_id = post['patientId'];
-            }
-            let req_patient = JSON.stringify({
-                patientName: req.body.patientName,
-                email: req.body.email,
-                surName: req.body.surName,
-                height: req.body.height,
-                weight: req.body.weight,
-                gender: req.body.gender,
-                bloodType: req.body.bloodType,
-                complaint: req.body.complaint,
-                date: req.body.date,
-                homeNo: req.body.homeNo,
-                mobileNo: req.body.mobileNo,
-                address: req.body.address,
-                contactName: req.body.contactName,
-                contactRelationship: req.body.contactRelationship,
-                contactPhoneNo: req.body.contactPhoneNo,
-            });
-            const patient = new Patient({
-                _id: new mongoose.Types.ObjectId(),
-                patientId: last_id + 1,
-                patientName: req.body.patientName,
-                email: req.body.email,
-                surName: req.body.surName,
-                height: req.body.height,
-                weight: req.body.weight,
-                gender: req.body.gender,
-                bloodType: req.body.bloodType,
-                complaint: req.body.complaint,
-                date: req.body.date,
-                homeNo: req.body.homeNo,
-                mobileNo: req.body.mobileNo,
-                address: req.body.address,
-                contactName: req.body.contactName,
-                contactRelationship: req.body.contactRelationship,
-                contactPhoneNo: req.body.contactPhoneNo,
-            });
-            patient
-                .save()
-                .then(result => {
-                    helpers_log.TransactionLog(req, res, "Patient Added");
-                    helpers_log.all_log(req, res, "0", "Patient Added", req_patient, patient);
-                    res.status(200).json({
-                        status: "0",
-                        message: "Patient Added",
-                        patient: patient
+        if(req.body.email != null)
+    {
+        Patient.find({email: req.body.email})
+            .exec()
+            .then(docs => {
+                if(docs == ''){
+                    var last_id;
+                    Patient.findOne().sort({created_at: -1}).exec(function (err, post) {
+                        if (post == null) {
+                            last_id = 0;
+                        } else {
+                            last_id = post['patientId'];
+                        }
+                        let req_patient = JSON.stringify({
+                            patientName: req.body.patientName,
+                            email: req.body.email,
+                            surName: req.body.surName,
+                            height: req.body.height,
+                            weight: req.body.weight,
+                            gender: req.body.gender,
+                            bloodType: req.body.bloodType,
+                            complaint: req.body.complaint,
+                            date: req.body.date,
+                            homeNo: req.body.homeNo,
+                            mobileNo: req.body.mobileNo,
+                            address: req.body.address,
+                            contactName: req.body.contactName,
+                            contactRelationship: req.body.contactRelationship,
+                            contactPhoneNo: req.body.contactPhoneNo,
+                        });
+                        const patient = new Patient({
+                            _id: new mongoose.Types.ObjectId(),
+                            patientId: last_id + 1,
+                            patientName: req.body.patientName,
+                            email: req.body.email,
+                            surName: req.body.surName,
+                            height: req.body.height,
+                            weight: req.body.weight,
+                            gender: req.body.gender,
+                            bloodType: req.body.bloodType,
+                            complaint: req.body.complaint,
+                            date: req.body.date,
+                            homeNo: req.body.homeNo,
+                            mobileNo: req.body.mobileNo,
+                            address: req.body.address,
+                            contactName: req.body.contactName,
+                            contactRelationship: req.body.contactRelationship,
+                            contactPhoneNo: req.body.contactPhoneNo,
+                        });
+                        patient
+                            .save()
+                            .then(result => {
+                                helpers_log.TransactionLog(req, res, "Patient Added");
+                                helpers_log.all_log(req, res, "0", "Patient Added", req_patient, patient);
+                                res.status(200).json({
+                                    status: "0",
+                                    message: "Patient Added",
+                                    patient: patient
+                                });
+                            })
+                            .catch(err => {
+                                helpers_log.all_log(req, res, "2", err.message);
+                                res.status(500).json({
+                                    status: "2",
+                                    error: err.message
+                                });
+                            });
                     });
-                })
-                .catch(err => {
-                    console.log(err.message);
-                    // if (err.message.includes('E11000 duplicate key error collection') || err.message.includes("insertDocument :: caused by :: 11000 E11000 duplicate key")) {
-                    //     helpers_log.all_log(req, res, "2", `This email ${patient.email} already exist`);
-                    //     res.status(500).json({
-                    //         status: "2",
-                    //         // error: `This email ${patient.email} already exist`
-                    //         error: "jkjhkjkh"
-                    //     });
-                    // } else {
+                }else {
+                    helpers_log.all_log(req, res, "2", `This email ${req.body.email} already exist`);
+                    res.status(500).json({
+                        status: "2",
+                        error: `This email ${req.body.email} already exist`
+                    });
+                }
+            })
+            .catch(err => {
+                helpers_log.all_log(req, res, "2", err.message);
+                res.status(500).json({status: "2", error: err.message});
+            });
+    }else {
+            var last_id;
+            Patient.findOne().sort({created_at: -1}).exec(function (err, post) {
+                if (post == null) {
+                    last_id = 0;
+                } else {
+                    last_id = post['patientId'];
+                }
+                let req_patient = JSON.stringify({
+                    patientName: req.body.patientName,
+                    email: req.body.email,
+                    surName: req.body.surName,
+                    height: req.body.height,
+                    weight: req.body.weight,
+                    gender: req.body.gender,
+                    bloodType: req.body.bloodType,
+                    complaint: req.body.complaint,
+                    date: req.body.date,
+                    homeNo: req.body.homeNo,
+                    mobileNo: req.body.mobileNo,
+                    address: req.body.address,
+                    contactName: req.body.contactName,
+                    contactRelationship: req.body.contactRelationship,
+                    contactPhoneNo: req.body.contactPhoneNo,
+                });
+                const patient = new Patient({
+                    _id: new mongoose.Types.ObjectId(),
+                    patientId: last_id + 1,
+                    patientName: req.body.patientName,
+                    email: req.body.email,
+                    surName: req.body.surName,
+                    height: req.body.height,
+                    weight: req.body.weight,
+                    gender: req.body.gender,
+                    bloodType: req.body.bloodType,
+                    complaint: req.body.complaint,
+                    date: req.body.date,
+                    homeNo: req.body.homeNo,
+                    mobileNo: req.body.mobileNo,
+                    address: req.body.address,
+                    contactName: req.body.contactName,
+                    contactRelationship: req.body.contactRelationship,
+                    contactPhoneNo: req.body.contactPhoneNo,
+                });
+                patient
+                    .save()
+                    .then(result => {
+                        helpers_log.TransactionLog(req, res, "Patient Added");
+                        helpers_log.all_log(req, res, "0", "Patient Added", req_patient, patient);
+                        res.status(200).json({
+                            status: "0",
+                            message: "Patient Added",
+                            patient: patient
+                        });
+                    })
+                    .catch(err => {
                         helpers_log.all_log(req, res, "2", err.message);
                         res.status(500).json({
                             status: "2",
                             error: err.message
                         });
-                    // }
-                });
-        });
+                    });
+            });
+        }
+
     })(req, res, next);
 
 };
