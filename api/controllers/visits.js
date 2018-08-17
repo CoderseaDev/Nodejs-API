@@ -12,7 +12,6 @@ const helpers_log = require("../helpers/logsHelpers");
  * @api {post} /visit/addVisit Add Visit
  * @apiName Add Visit
  * @apiGroup Visit
- * @apiParam {String} visitorName requried
  * @apiParam {String} patient_id  requried
  * @apiParam {Date} date  requried
  * @apiParam {String} comment  requried
@@ -29,7 +28,6 @@ const helpers_log = require("../helpers/logsHelpers");
         "visit": {
             "delete": "false",
             "_id": "5b509fc776f49d5bb003550b",
-            "visitorName": "Mohsen",
             "patient_id": "5b50692ad196681760cb5149",
             "date": "2018-07-16T22:00:00.000Z",
             "comment": "test",
@@ -97,64 +95,24 @@ exports.add_visit = (req, res, next) => {
                         message: `No found the Patient with ID : ${patient._id} `
                     });
                 } else {
-                    var last_id;
-                    FilesUploaded.findOne().sort({created_at: -1}).exec(function (err, file_res) {
-                        if (file_res == null) {
-                            last_id = 0;
-                        } else {
-                            last_id = file_res['fileId'];
-                        }
-                        console.log(req.file);
-                        if (req.file === undefined) {
-                            helpers_log.all_log(req, res, "2", "No Image uploaded");
-                            return res.status(500).json({
-                                status: "2",
-                                error: "No Image uploaded"
-                            });
-                        }
-                        const files = new FilesUploaded({
-                            _id: new mongoose.Types.ObjectId(),
-                            fileId: last_id + 1,
-                            originalname: req.file.originalname,
-                            filename: req.file.filename,
-                            mimetype: req.file.mimetype,
-                            destination: req.file.destination,
-                            path: req.file.path,
-                            size: req.file.size,
-                        });
-                        files.save();
-                        let res_files = JSON.stringify({
-                            _id: new mongoose.Types.ObjectId(),
-                            fileId: last_id + 1,
-                            originalname: req.file.originalname,
-                            filename: req.file.filename,
-                            mimetype: req.file.mimetype,
-                            destination: req.file.destination,
-                            path: req.file.path,
-                            size: req.file.size
-                        });
-                        helpers_log.TransactionLog(req, res, "uploaded is Successfully");
-                        helpers_log.all_log(req, res, "0", "uploaded is Successfully", "", res_files);
+
+                    if(req.body.image == null){
+
+                        console.log(req.body);
                         const visit = new Visit({
                             _id: new mongoose.Types.ObjectId(),
-                            visitorName: req.body.visitorName,
                             patient_id: patient._id,
                             date: req.body.date,
                             comment: req.body.comment,
-                            image_id: files._id,
-                            image: files.fileId,
                         });
                         visit
                             .save()
                             .then(result => {
                                 let req_visit_json = JSON.stringify({
                                     _id: new mongoose.Types.ObjectId(),
-                                    visitorName: req.body.visitorName,
                                     patient_id: patient._id,
                                     date: req.body.date,
                                     comment: req.body.comment,
-                                    image_id: files._id,
-                                    image: files.fileId,
                                 });
                                 let res_visit_json = JSON.stringify({
                                     status: "0",
@@ -163,7 +121,6 @@ exports.add_visit = (req, res, next) => {
                                 });
                                 helpers_log.TransactionLog(req, res, "Visit Added");
                                 helpers_log.all_log(req, res, "0", "Visit Added", req_visit_json, res_visit_json);
-                                visit.image = files.path;
                                 res.status(200).json({
                                     status: "0",
                                     message: "Visit Added",
@@ -177,7 +134,68 @@ exports.add_visit = (req, res, next) => {
                                     error: err.message
                                 });
                             });
-                    });
+                    }else {
+
+                            const files = new FilesUploaded({
+                                _id: new mongoose.Types.ObjectId(),
+                                originalname: req.file.originalname,
+                                filename: req.file.filename,
+                                mimetype: req.file.mimetype,
+                                destination: req.file.destination,
+                                path: req.file.path,
+                                size: req.file.size,
+                            });
+                            files.save();
+                            let res_files = JSON.stringify({
+                                _id: new mongoose.Types.ObjectId(),
+                                originalname: req.file.originalname,
+                                filename: req.file.filename,
+                                mimetype: req.file.mimetype,
+                                destination: req.file.destination,
+                                path: req.file.path,
+                                size: req.file.size
+                            });
+                            helpers_log.TransactionLog(req, res, "uploaded is Successfully");
+                            helpers_log.all_log(req, res, "0", "uploaded is Successfully", "", res_files);
+                            const visit = new Visit({
+                                _id: new mongoose.Types.ObjectId(),
+                                patient_id: patient._id,
+                                date: req.body.date,
+                                comment: req.body.comment,
+                                image: files._id,
+                            });
+                            visit
+                                .save()
+                                .then(result => {
+                                    let req_visit_json = JSON.stringify({
+                                        _id: new mongoose.Types.ObjectId(),
+                                        patient_id: patient._id,
+                                        date: req.body.date,
+                                        comment: req.body.comment,
+                                        image: files._id,
+                                    });
+                                    let res_visit_json = JSON.stringify({
+                                        status: "0",
+                                        message: "Visit Added",
+                                        data: {visit, patient}
+                                    });
+                                    helpers_log.TransactionLog(req, res, "Visit Added");
+                                    helpers_log.all_log(req, res, "0", "Visit Added", req_visit_json, res_visit_json);
+                                    visit.image = files.path;
+                                    res.status(200).json({
+                                        status: "0",
+                                        message: "Visit Added",
+                                        data: {visit, patient}
+                                    });
+                                })
+                                .catch(err => {
+                                    helpers_log.all_log(req, res, "2", err.message);
+                                    res.status(500).json({
+                                        status: "2",
+                                        error: err.message
+                                    });
+                                });
+                        }
                 }
             })
             .catch(err => {
@@ -205,7 +223,6 @@ exports.add_visit = (req, res, next) => {
     "visitInfo": {
         "delete": "false",
         "_id": "5b509fc776f49d5bb003550b",
-        "visitorName": "Mohsen",
         "patient_id": "5b50692ad196681760cb5149",
         "date": "2018-07-16T22:00:00.000Z",
         "comment": "test",
