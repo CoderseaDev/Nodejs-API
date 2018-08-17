@@ -5,7 +5,7 @@ const userSchema = mongoose.Schema({
     patientId: {type: Number,default:1},
     patientName: {type: String,required: [true, 'Patient Name is required']},
     surName: {type: String},
-    email:{type:String},
+    email:{type:mongoose.SchemaTypes.Email},
     
     height:{
         type:Number,
