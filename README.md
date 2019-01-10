@@ -28,6 +28,12 @@ Several quick start options are available:
 ``` 
 https://github.com/CoderseaLTD/Nodejs-API.git 
 ```
+
+- Install npm: 
+```
+npm install
+```
+
 - Install express with npm: 
 ```
  npm install express --save
@@ -62,4 +68,3 @@ npm install jsonwebtoken
 * [apidoc](http://apidocjs.com/#getting-started) - To create documentation
 * [Express](https://expressjs.com/) - The Express documentation
 * [jsonwebtoken](https://jwt.io/) - JWTs are credentials, which can grant access to resources.
-
